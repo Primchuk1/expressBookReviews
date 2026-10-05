@@ -1,0 +1,2 @@
+curl.exe http://localhost:5000/isbn/1
+{"author":"Chinua Achebe","title":"Things Fall Apart","reviews":{}}

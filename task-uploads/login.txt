@@ -1,0 +1,2 @@
+curl.exe -X POST http://localhost:5000/customer/login -d "username=John&password=25"
+{"message":"User logged in successfully"}

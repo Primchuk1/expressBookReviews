@@ -1,3 +1,5 @@
+// Shared in-memory catalog, keyed by the ISBN values used in endpoint URLs.
+// Each reviews object maps usernames to reviews; changes are lost when the server restarts.
 let books = {
       1: { "author": "Chinua Achebe", "title": "Things Fall Apart", "reviews": {} },
       2: { "author": "Hans Christian Andersen", "title": "Fairy tales", "reviews": {} },

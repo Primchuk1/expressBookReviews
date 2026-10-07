@@ -4,6 +4,18 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+async function getBooks() {
+  return new Promise((resolve, reject) => {
+    if (Object.keys(books).length > 0) {
+      resolve(books);
+    } else {
+      reject("There are no books available.");
+    }
+  }).catch((err) => {
+    console.error("Error retrieving books:", err);
+    throw err;
+  })
+}
 
 public_users.post("/register", (req, res) => {
   const { username, password } = req.body;
@@ -18,11 +30,17 @@ public_users.post("/register", (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/', function (req, res) {
-  res.send(books);
+public_users.get('/', async (req, res) => {
+  try {
+    const result = await getBooks();
+    res.send(result);
+  } catch (err) {
+    res.status(500).json({ message: "Error retrieving books" });
+  }
 });
 
 // Get book details based on ISBN
+/*
 public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
   if (books[isbn]) {
@@ -31,8 +49,27 @@ public_users.get('/isbn/:isbn', function (req, res) {
     res.status(404).json({ message: "Book not found" });
   }
 });
+*/
+
+//Get book details based on ISBN async
+public_users.get('/isbn/:isbn', async (req, res) => {
+  const isbn = req.params.isbn;
+  try {
+    const result = await new Promise((resolve, reject) => {
+      if (books[isbn]) {
+        resolve(books[isbn]);
+      } else {
+        reject("Book not found");
+      }
+    });
+    res.send(result);
+  } catch (err) {
+    res.status(404).json({ message: err });
+  }
+});
 
 // Get book details based on author
+/*
 public_users.get('/author/:author', function (req, res) {
   const author = req.params.author;
   const filteredBooks = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
@@ -42,8 +79,28 @@ public_users.get('/author/:author', function (req, res) {
     res.status(404).json({ message: "No books found by this author" });
   }
 });
+*/
+
+// Get book details based on author async
+public_users.get('/author/:author', async (req, res) => {
+  const author = req.params.author;
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const filteredBooks = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
+      if (filteredBooks.length > 0) {
+        resolve(filteredBooks);
+      } else {
+        reject("No books found by this author");
+      }
+    });
+    res.send(result);
+  } catch (err) {
+    res.status(404).json({ message: err });
+  }
+});
 
 // Get all books based on title
+/*
 public_users.get('/title/:title', function (req, res) {
   const title = req.params.title;
   const filteredBooks = Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
@@ -51,6 +108,25 @@ public_users.get('/title/:title', function (req, res) {
     res.send(filteredBooks);
   } else {
     res.status(404).json({ message: "No books found with this title" });
+  }
+});
+*/
+
+// Get all books based on title async
+public_users.get('/title/:title', async (req, res) => {
+  const title = req.params.title;
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const filteredBooks = Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
+      if (filteredBooks.length > 0) {
+        resolve(filteredBooks);
+      } else {
+        reject("No books found with this title");
+      }
+    });
+    res.send(result);
+  } catch (err) {
+    res.status(404).json({ message: err });
   }
 });
 

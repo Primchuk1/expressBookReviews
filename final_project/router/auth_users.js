@@ -31,16 +31,28 @@ regd_users.post("/login", (req, res) => {
     return res.status(401).json({ message: "Invalid username or password" });
   }
   // Generate a JWT token
-  const token = jwt.sign({ username }, "access", { expiresIn: "1h" });
+  const token = jwt.sign({ data: password }, "access", { expiresIn: "1h" });
   // Store the token in the session
-  req.session.authorization = { accessToken: token };
+  req.session.authorization = { accessToken: token, username: username };
   return res.status(200).json({ message: "User logged in successfully" });
+  //res.send(`Session.authorization: ${JSON.stringify(req.session.authorization)}, Token: ${token}`);
 });
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+  const isbn = req.params.isbn;
+  const { review } = req.body;
+  const username = req.session.authorization.username;
+  books[isbn].reviews[username] = review;
+  res.send(`The review for the book with ISBN ${isbn} has been added/updated.`);
+});
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const username = req.session.authorization.username;
+  delete books[isbn].reviews[username];
+  res.send(`The review for the book with ISBN ${isbn} has been deleted.`);
 });
 
 module.exports.authenticated = regd_users;
